@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Little Fuzzy — System Access</title>
+
+<style>
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#3012d6;
+  color:#ff9b3c;
+  font-family:"Courier New",monospace;
+  overflow:hidden;
+}
+
+
+/* HEADER */
+
+#header{
+  position: fixed;
+  top: 18px;
+  left: 0;
+  width: 98%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 2000;
+}
+
+#bookLink,
+#authorLink{
+  color: #ff9b3c;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: 0.25s;
+}
+
+#bookLink:hover,
+#authorLink:hover{
+  opacity: 1;
+  text-shadow: 0 0 8px rgba(255,155,60,0.9);
+  cursor: pointer;
+}
+
+
+/* SCREEN */
+
+#screen{
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+
+/* START */
+
+#start{
+  text-align:center;
+}
+
+#startBtn {
+  padding: 0.9rem 2.8rem;
+  background: transparent;
+  border: 1px solid #ff9b3c;
+  color: #ff9b3c;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+#startBtn:hover{
+  background:rgba(255,155,60,0.15);
+}
+
+
+/* IDENTITY */
+
+#identity{
+  display:none;
+  max-width:284px;
+  width:100%;
+  border:1px solid #ff9b3c;
+  background:rgba(65, 53, 53, 0.22);
+  padding:2.2rem;
+  text-align:center;
+}
+
+#identity h1{
+  font-size:0.8rem;
+  letter-spacing:3px;
+  margin-bottom:1.5rem;
+}
+
+#identity p{
+  font-size:0.65rem;
+  opacity:0.8;
+  margin-bottom:1.2rem;
+}
+
+#identity label{
+  display:block;
+  font-size:0.6rem;
+  margin-top:1rem;
+  margin-bottom:0.3rem;
+}
+
+#identity input{
+  width:100%;
+  background:rgba(60, 51, 51, 0.2);
+  color:#ff9b3c;
+  border:1px solid #ff9b3c;
+  padding:0.4rem;
+  font-family:inherit;
+  text-align:center;
+}
+
+#status1{
+  margin-top:0.8rem;
+  font-size:0.6rem;
+}
+
+
+/* STORY */
+
+#story{
+  display:none;
+  max-width:700px;
+  text-align:center;
+  font-size:1rem;
+  line-height:2;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+#text{
+  min-height:120px;
+}
+
+
+/* SKIP */
+
+#skipBtn{
+  position:fixed;
+  bottom:20px;
+  right:25px;
+  font-size:0.65rem;
+  opacity:0.6;
+  cursor:pointer;
+  display:none;
+}
+
+#skipBtn:hover{opacity:1;}
+
+
+/* GLOBE */
+
+#globe-section{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  width:100%;
+  cursor:pointer;
+}
+
+#globe-wrapper{
+  width:100vmin;
+  height:100vmin;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  animation:breathe 6s ease-in-out infinite;
+}
+
+#globe-wrapper:hover {
+  filter: brightness(1.5) saturate(1.3);
+}
+
+@keyframes breathe{
+  0%{transform:scale(0.97);}
+  50%{transform:scale(1.03);}
+  100%{transform:scale(0.97);}
+}
+
+
+.ascii-sphere{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  animation:rotate 40s linear infinite;
+}
+
+
+@keyframes rotate{
+  from{transform:rotateY(0deg);}
+  to{transform:rotateY(360deg);}
+}
+
+
+.char{
+  position:absolute;
+  left:50%;
+  top:50%;
+  color:#ff9b3c;
+  font-size:12px;
+  opacity:0.6;
+}
+
+
+/* CONFIRM CIRCLE — FIX */
+
+#confirmCircle{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:36px;
+  height:36px;
+
+  margin:25px auto 0;
+
+  border-radius:50%;
+  border:2px solid #ff9b3c;
+
+  cursor:pointer;
+
+  box-shadow:0 0 6px rgba(255,128,0,0.4);
+
+  transition:0.25s;
+}
+
+#confirmCircle:hover{
+  background:rgba(255,128,0,0.25);
+  box-shadow:0 0 14px rgba(255,128,0,0.9);
+  transform:scale(1.15);
+}
+
+#confirmCircle::before{
+  content:"●";
+  font-size:14px;
+  color:#ff9b3c;
+  opacity:0.8;
+}
+
+</style>
+</head>
+
+<body>
+
+
+<div id="header">
+
+  <a href="HOMEPAGE.html" id="bookLink">
+    BOOK: LITTLE FUZZY
+  </a>
+
+  <a href="HOMEPAGE.html" id="authorLink">
+    H. BEAM PIPER
+  </a>
+
+</div>
+
+
+
+<div id="screen">
+
+
+<!-- START -->
+
+<div id="start">
+
+  <button id="startBtn">
+    ENTER SYSTEM
+  </button>
+
+</div>
+
+
+<!-- IDENTITY -->
+
+<div id="identity">
+
+  <h1>USER IDENTIFICATION</h1>
+
+  <p>
+  INTERSTELLAR ARCHIVE SYSTEM<br>
+  IDENTITY VERIFICATION REQUIRED
+  </p>
+
+  <label>FIRST NAME</label>
+  <input id="firstName">
+
+  <label>LAST NAME</label>
+  <input id="lastName">
+
+  <label>PLANET OF ORIGIN</label>
+  <input id="planet">
+
+  <div id="confirmCircle"></div>
+
+  <div id="status1"></div>
+
+</div>
+
+
+<!-- STORY -->
+
+<div id="story">
+  <div id="text"></div>
+</div>
+
+
+<!-- SKIP -->
+
+<div id="skipBtn">
+  SKIP INTRO
+</div>
+
+
+<!-- GLOBE -->
+
+<div id="globe-section">
+
+  <div id="globe-wrapper">
+    <div class="ascii-sphere" id="sphere"></div>
+  </div>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+/* ELEMENTS */
+
+const startBtn = document.getElementById("startBtn");
+const identityBox = document.getElementById("identity");
+const storyBox = document.getElementById("story");
+const textBox  = document.getElementById("text");
+const globeBox = document.getElementById("globe-section");
+const globeWrap= document.getElementById("globe-wrapper");
+const skipBtn  = document.getElementById("skipBtn");
+const confirmBtn = document.getElementById("confirmCircle");
+
+
+/* AUDIO */
+
+let audioCtx=null;
+
+function initAudio(){
+  if(!audioCtx){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  }
+}
+
+
+/* TYPE SOUND */
+
+function playType(){
+
+  if(!audioCtx)return;
+
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+
+  o.frequency.value=80+Math.random()*40;
+  g.gain.value=0.04;
+
+  o.connect(g);
+  g.connect(audioCtx.destination);
+
+  o.start();
+  o.stop(audioCtx.currentTime+0.12);
+}
+
+
+/* STORY */
+
+const story=[
+
+  "YEAR 2217.",
+  "HESPERUS SYSTEM.",
+  "A WORLD MARKED AS SILENT.",
+  "UNTIL SOMETHING ANSWERED.",
+  "SMALL CREATURES.",
+  "CURIOUS MINDS.",
+  "THEY WATCH.",
+  "THEY LEARN.",
+  "THEY REMEMBER.",
+  "HUMANS CALLED THEM…",
+  "FUZZIES.",
+  "THIS IS THEIR WORLD."
+
+];
+
+
+let line=0;
+let char=0;
+let buffer="";
+let running=true;
+
+
+/* TYPEWRITER */
+
+function typeLine(){
+
+  if(!running)return;
+
+  if(char<story[line].length){
+
+    buffer+=story[line][char];
+    textBox.innerText=buffer;
+
+    playType();
+
+    char++;
+
+    setTimeout(typeLine,45);
+
+  }else{
+
+    setTimeout(clearLine,1200);
+  }
+}
+
+
+function clearLine(){
+
+  if(!running)return;
+
+  if(buffer.length){
+
+    buffer=buffer.slice(0,-1);
+    textBox.innerText=buffer;
+
+    setTimeout(clearLine,20);
+
+  }else{
+
+    line++;
+    char=0;
+
+    if(line<story.length){
+      setTimeout(typeLine,500);
+    }else{
+      endIntro();
+    }
+  }
+}
+
+
+/* START */
+
+startBtn.onclick=()=>{
+
+  initAudio();
+
+  document.getElementById("start").style.display="none";
+  identityBox.style.display="block";
+
+};
+
+
+/* CONFIRM */
+
+confirmBtn.onclick=()=>{
+
+  const fn = document.getElementById("firstName").value.trim();
+  const ln = document.getElementById("lastName").value.trim();
+  const pl = document.getElementById("planet").value.trim();
+
+  const status = document.getElementById("status1");
+
+  if(fn.length<2||ln.length<2||pl.length<2){
+
+    status.innerText="ERROR: INCOMPLETE DATA";
+    return;
+  }
+
+  status.innerText="IDENTITY VERIFIED";
+
+  setTimeout(()=>{
+
+    identityBox.style.display="none";
+
+    storyBox.style.display="block";
+    skipBtn.style.display="block";
+
+    setTimeout(typeLine,600);
+
+  },900);
+
+};
+
+
+/* END INTRO */
+
+function endIntro(){
+
+  running=false;
+
+  storyBox.style.display="none";
+  skipBtn.style.display="none";
+
+  showGlobe();
+}
+
+
+skipBtn.onclick=()=>endIntro();
+
+
+/* GLOBE */
+
+function showGlobe(){
+
+  globeBox.style.display="flex";
+
+  buildSphere();
+}
+
+
+function buildSphere(){
+
+  const sphere=document.getElementById("sphere");
+  sphere.innerHTML="";
+
+  const chars=['#','*','@','+','°','•','.','≈','§','%','∆'];
+
+  const radius =
+    Math.min(window.innerWidth,window.innerHeight)*0.48;
+
+  const layers=42;
+  const points=65;
+
+  for(let i=0;i<layers;i++){
+
+    const theta=i/(layers-1)*Math.PI;
+    const y=radius*Math.cos(theta);
+    const r=radius*Math.sin(theta);
+
+    for(let j=0;j<points;j++){
+
+      const phi=j/points*2*Math.PI;
+
+      const x=r*Math.cos(phi);
+      const z=r*Math.sin(phi);
+
+      const s=document.createElement("span");
+
+      s.className="char";
+      s.textContent=chars[Math.floor(Math.random()*chars.length)];
+
+      const scale=1-(z/(radius*2));
+
+      s.style.transform=
+        `translate3d(${x}px,${y}px,${z}px) scale(${scale})`;
+
+      s.style.opacity=0.4+0.6*scale;
+
+      sphere.appendChild(s);
+    }
+  }
+}
+
+
+/* GLITCH */
+
+const glitchChars="!<>-_\\/[]{}—=+*^?#_____";
+
+function glitch(el){
+
+  const txt=el.innerText;
+
+  setInterval(()=>{
+
+    let out="";
+
+    for(let i=0;i<txt.length;i++){
+
+      if(Math.random()>0.65){
+        out+=glitchChars[Math.floor(Math.random()*glitchChars.length)];
+      }else{
+        out+=txt[i];
+      }
+    }
+
+    el.innerText=out;
+
+    setTimeout(()=>el.innerText=txt,160);
+
+  },230);
+}
+
+glitch(startBtn);
+
+
+/* CLICK GLOBE */
+
+globeWrap.onclick=()=>{
+
+  document.body.style.opacity="0";
+
+  setTimeout(()=>{
+
+    window.location.href="PAG1.html";
+
+  },900);
+};
+
+</script>
+
+</body>
+</html>

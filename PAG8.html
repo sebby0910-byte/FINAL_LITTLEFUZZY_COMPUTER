@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>INTERSTELLAR ARCHIVE — CHAPTER 08</title>
+
+<style>
+
+:root{
+  --bg:#3012d6;
+  --orange:#ff9b3c;
+  --panel:rgba(30,15,120,0.75);
+  --dim:rgba(255,155,60,0.5);
+}
+
+*{
+  box-sizing:border-box;
+  font-family:"Courier New",monospace;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--orange);
+  overflow-y:auto;
+}
+
+/* GRID */
+
+.container{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:14px;
+  padding:24px;
+}
+
+/* PANEL */
+
+.panel{
+  border:1px solid var(--orange);
+  background:var(--panel);
+  padding:14px;
+  position:relative;
+  transition:.25s;
+}
+
+.panel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  box-shadow:0 0 20px rgba(255,155,60,.15) inset;
+  pointer-events:none;
+}
+
+
+/* CLICKABLE */
+
+.clickable{
+  cursor:pointer;
+  animation:pulse 3s infinite;
+}
+
+.clickable:hover{
+  background:rgba(255,155,60,.12);
+  box-shadow:0 0 25px rgba(255,155,60,.4);
+  transform:scale(1.01);
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 6px rgba(255,155,60,.2)}
+  50%{box-shadow:0 0 18px rgba(255,155,60,.5)}
+  100%{box-shadow:0 0 6px rgba(255,155,60,.2)}
+}
+
+
+/* COLS */
+
+.col-4{grid-column:span 4;}
+.col-6{grid-column:span 6;}
+.col-12{grid-column:span 12;}
+
+
+/* HEADER */
+
+.header{
+  grid-column:1/13;
+  text-align:center;
+  padding:24px;
+  font-size:20px;
+  letter-spacing:4px;
+}
+
+.header small{
+  display:block;
+  font-size:11px;
+  margin-top:6px;
+  opacity:.7;
+}
+
+
+/* TITLES */
+
+h3{
+  margin:0 0 6px;
+  font-size:12px;
+  border-bottom:1px solid var(--dim);
+  padding-bottom:4px;
+  letter-spacing:2px;
+}
+
+
+/* TEXT */
+
+.data{
+  font-size:11px;
+  line-height:1.5;
+  opacity:.9;
+}
+
+.archive{
+  font-size:12px;
+  line-height:1.7;
+  text-align:justify;
+}
+
+
+/* BAR */
+
+.bar{
+  height:6px;
+  border:1px solid var(--orange);
+  background:rgba(0,0,0,.3);
+  margin:4px 0 8px;
+}
+
+.bar span{
+  display:block;
+  height:100%;
+  background:var(--orange);
+}
+
+
+/* CANVAS */
+
+.scan{
+  width:100%;
+  background:#100b4f;
+  border:1px solid var(--orange);
+}
+
+
+/* OVERLAY */
+
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(48,18,214,0.98);
+
+  display:none;
+  flex-direction:column;
+
+  z-index:9999;
+
+  animation:fadeIn .25s ease;
+
+  box-shadow:inset 0 0 80px rgba(0,0,0,.45);
+
+  backdrop-filter:blur(2px);
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+#overlayHeader{
+  padding:22px;
+  text-align:center;
+  border-bottom:1px solid var(--orange);
+  letter-spacing:3px;
+  font-size:14px;
+  background:rgba(0,0,0,.2);
+}
+
+#overlayClose{
+  position:absolute;
+  top:18px;
+  right:24px;
+  font-size:11px;
+  cursor:pointer;
+  opacity:.7;
+}
+
+#overlayClose:hover{opacity:1}
+
+#overlayBody{
+  flex:1;
+  overflow-y:auto;
+  padding:30px 15px;
+}
+
+#overlayContent{
+  max-width:820px;
+  margin:auto;
+
+  font-size:14px;
+  line-height:2;
+  text-align:justify;
+
+  background:rgba(0,0,0,.18);
+
+  border:1px solid var(--orange);
+
+  padding:36px;
+}
+
+
+
+/* FOOTER */
+
+.footer{
+  grid-column:1/13;
+  text-align:center;
+  font-size:11px;
+  padding:18px;
+  opacity:.8;
+}
+
+
+/* MENU */
+
+#chapterMenu{
+  position:fixed;
+  inset:0;
+  background:rgba(48,18,214,0.98);
+
+  display:none;
+  flex-direction:column;
+  z-index:99999;
+
+  box-shadow:inset 0 0 80px rgba(0,0,0,.4);
+}
+
+#menuHeader{
+  padding:20px;
+  text-align:center;
+  border-bottom:1px solid var(--orange);
+  letter-spacing:3px;
+}
+
+#menuClose{
+  position:absolute;
+  top:18px;
+  right:24px;
+  font-size:11px;
+  cursor:pointer;
+  opacity:.7;
+}
+
+#menuClose:hover{opacity:1}
+
+#menuBody{
+  flex:1;
+  overflow:auto;
+  padding:30px;
+}
+
+.menuLink{
+  display:block;
+  padding:14px;
+  margin-bottom:12px;
+
+  border:1px solid var(--orange);
+
+  text-decoration:none;
+  color:var(--orange);
+
+  letter-spacing:1px;
+
+  background:rgba(0,0,0,.15);
+
+  transition:.25s;
+}
+
+.menuLink:hover{
+  background:rgba(255,155,60,.18);
+  box-shadow:0 0 12px rgba(255,155,60,.6);
+  transform:scale(1.02);
+}
+/* CHAPTER STRIP */
+
+.chapter-strip{
+  grid-column:1/13;
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin-top:-10px;
+  margin-bottom:10px;
+}
+
+.chapter-btn{
+  position:relative;
+
+  width:26px;
+  height:26px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:1px solid var(--orange);
+  color:var(--orange);
+  text-decoration:none;
+
+  font-size:11px;
+
+  background:rgba(0,0,0,.25);
+
+  transition:.2s;
+}
+.chapter-btn::before{
+  content:attr(data-num);
+  position:absolute;
+}
+
+.chapter-btn:hover{
+  background:rgba(255,155,60,.25);
+  box-shadow:0 0 8px rgba(255,155,60,.6);
+  transform:scale(1.1);
+}
+/* BACK TO HOME BUTTON */
+
+.back-home{
+  display:inline-block;
+
+  margin-top:8px;
+  padding:6px 14px;
+
+  border:1px solid var(--orange);
+
+  color:var(--orange);
+  text-decoration:none;
+
+  font-size:11px;
+  letter-spacing:2px;
+
+  background:rgba(0,0,0,0.25);
+
+  transition:.25s;
+}
+
+.back-home:hover{
+  background:rgba(255,155,60,0.25);
+
+  box-shadow:0 0 12px rgba(255,155,60,.7);
+
+  transform:scale(1.05);
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- MENU -->
+
+<div id="chapterMenu">
+
+  <div id="menuHeader">
+    INTERSTELLAR ARCHIVE — INDEX
+  </div>
+
+  <div id="menuClose">[ CLOSE ]</div>
+
+  <div id="menuBody">
+
+    <a class="menuLink" href="PAG1.html">CHAPTER 01 — First Contact</a>
+    <a class="menuLink" href="PAG2.html">CHAPTER 02 — Contact Protocol</a>
+    <a class="menuLink" href="PAG3.html">CHAPTER 03 — System Drift</a>
+    <a class="menuLink" href="PAG4.html">CHAPTER 04 — Emergence</a>
+    <a class="menuLink" href="PAG5.html">CHAPTER 05 — Divergence</a>
+    <a class="menuLink" href="PAG6.html">CHAPTER 06 — Instability</a>
+    <a class="menuLink" href="PAG7.html">CHAPTER 07 — Fragmentation</a>
+    <a class="menuLink" href="PAG8.html">CHAPTER 08 — Collapse</a>
+    <a class="menuLink" href="PAG9.html">CHAPTER 09 — Reconfiguration</a>
+    <a class="menuLink" href="PAG10.html">CHAPTER 10 — Resolution</a>
+
+  </div>
+
+</div>
+
+
+<!-- OVERLAY -->
+
+<div id="overlay">
+
+  <div id="overlayHeader">
+    CHAPTER 08 — COLLAPSE — FULL RECORD
+  </div>
+
+  <div id="overlayClose">[ CLOSE FILE ]</div>
+
+  <div id="overlayBody">
+
+    <div id="overlayContent">
+
+Year 2224.
+
+Fragmentation reached terminal levels.
+
+Remaining social structures
+ceased functioning.
+
+No unified systems remained.
+
+Coordination failed entirely.
+
+Mutual aid collapsed.
+
+Resource networks disintegrated.
+
+Starvation zones expanded.
+
+Medical knowledge vanished.
+
+Healing rituals replaced treatment.
+
+Mortality increased sharply.
+
+Population decline accelerated.
+
+Migration routes dissolved.
+
+Safe regions disappeared.
+
+Violence escalated sporadically.
+
+Not organized war.
+
+Desperation.
+
+Survival groups formed.
+
+Short-term alliances dissolved quickly.
+
+Trust intervals shortened.
+
+Paranoia normalized.
+
+Memory archives destroyed.
+
+Symbol repositories burned.
+
+Knowledge inheritance ceased.
+
+Each generation
+started again from nothing.
+
+Cognitive regression detected.
+
+Abstract reasoning declined.
+
+Long-term planning vanished.
+
+Myth replaced history.
+
+Rumor replaced evidence.
+
+Fear replaced understanding.
+
+Environmental degradation followed.
+
+Overexploitation occurred.
+
+Ecosystem balance failed.
+
+Habitat loss intensified.
+
+Multiple extinction events recorded.
+
+Human observers
+reduced presence further.
+
+Direct intervention prohibited.
+
+Quarantine protocols considered.
+
+Evacuation scenarios drafted.
+
+Rejected.
+
+Ethical cost unacceptable.
+
+The Fuzzies
+entered a collapse state.
+
+Not extinction.
+
+Disintegration.
+
+A civilization
+falling inward.
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MAIN -->
+
+<div class="container">
+
+
+<!-- HEADER -->
+
+<div class="panel header clickable" id="openMenu">
+
+INTERSTELLAR ARCHIVE  
+CHAPTER 08 — ACCESS LOG
+
+<small>NODE 7X-DELTA // CLEARANCE ALPHA</small>
+
+</div>
+<div class="panel chapter-strip">
+
+
+  <a class="chapter-btn" href="PAG1.html">1</a>
+  <a class="chapter-btn" href="PAG2.html">2</a>
+  <a class="chapter-btn" href="PAG3.html">3</a>
+  <a class="chapter-btn" href="PAG4.html">4</a>
+  <a class="chapter-btn" href="PAG5.html">5</a>
+  <a class="chapter-btn" href="PAG6.html">6</a>
+  <a class="chapter-btn" href="PAG7.html">7</a>
+  <a class="chapter-btn" href="PAG8.html">8</a>
+  <a class="chapter-btn" href="PAG9.html">9</a>
+  <a class="chapter-btn" href="PAG10.html">10</a>
+
+</div>
+
+<!-- IDENTIFICATION -->
+
+<div class="panel col-4">
+
+<h3>IDENTIFICATION</h3>
+
+<div class="data">FILE: CH08-CL-2224</div>
+<div class="data">AUTHOR: H. B. PIPER</div>
+<div class="data">VERSION: 2.04</div>
+<div class="data">STATUS: FAILED</div>
+<div class="data">ACCESS: RESTRICTED</div>
+
+</div>
+
+
+<div class="panel col-4">
+
+<h3>DATA INTEGRITY</h3>
+
+CRC
+<div class="bar"><span style="width:49%"></span></div>
+
+HASH
+<div class="bar"><span style="width:46%"></span></div>
+
+SYNC
+<div class="bar"><span style="width:39%"></span></div>
+
+</div>
+
+
+<div class="panel col-4">
+
+<h3>MODULES</h3>
+
+<div class="data">COLLAPSE MODEL</div>
+<div class="data">SURVIVAL TRACKER</div>
+<div class="data">EXTINCTION RISK</div>
+<div class="data">ECO ANALYZER</div>
+<div class="data">SECURITY NODE</div>
+
+</div>
+
+
+<!-- SCAN -->
+
+<div class="panel col-6">
+
+
+<canvas id="visual01" class="scan" width="360" height="260"></canvas>
+
+<div class="data">
+MODE: DEMOGRAPHIC LOSS<br>
+SUBJECT: PLANETARY<br>
+CONFIDENCE: 91%
+</div>
+
+</div>
+
+
+<!-- SIGNAL -->
+
+<div class="panel col-6">
+
+
+<canvas id="visual02" class="scan" width="360" height="260"></canvas>
+
+<div class="data">
+FREQUENCY: IRREVERSIBLE<br>
+SOURCE: BIOSPHERE<br>
+STABILITY: TERMINAL
+</div>
+
+</div>
+
+
+<!-- SUMMARY -->
+
+<div class="panel col-12 clickable" id="openChapter">
+
+<h3>CHAPTER SUMMARY — OPEN FULL RECORD</h3>
+
+<div class="archive">
+
+Year 2224.
+
+Social systems collapsed.
+
+Knowledge lost.
+
+Population declined.
+
+Civilization disintegrated.
+
+CLICK TO ACCESS FULL FILE
+
+</div>
+
+</div>
+
+
+<!-- LOG -->
+
+<div class="panel col-12">
+
+<h3>EVENT LOG</h3>
+
+<div class="archive">
+
+[055] Resource network failure  
+[056] Mass mortality  
+[057] Archive destruction  
+[058] Habitat loss  
+[059] Quarantine debate  
+[060] Observer reduction  
+
+</div>
+
+</div>
+
+
+<!-- PARAMETERS -->
+
+<div class="panel col-4">
+
+<h3>PARAMETERS</h3>
+
+DECAY
+<div class="bar"><span style="width:96%"></span></div>
+
+SYNC
+<div class="bar"><span style="width:28%"></span></div>
+
+LOAD
+<div class="bar"><span style="width:92%"></span></div>
+
+</div>
+
+
+<div class="panel col-4">
+
+<h3>NODES</h3>
+
+<div class="data">NODE-H3</div>
+<div class="data">NODE-M6</div>
+<div class="data">NODE-Q1</div>
+<div class="data">NODE-T8</div>
+<div class="data">NODE-Z4</div>
+
+</div>
+
+
+<div class="panel col-4">
+
+<h3>SECURITY</h3>
+
+<div class="data">[!] QUARANTINE</div>
+<div class="data">[!] LOST</div>
+<div class="data">[✓] ARCHIVE</div>
+<div class="data">[!] FINAL</div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="panel footer">
+
+<a href="HOMEPAGE.html" class="back-home">
+  ◀ BACK TO HOMEPAGE
+</a>
+
+</div>
+
+
+</div>
+
+
+
+<!-- SCRIPT -->
+
+<script>
+
+/* =========================
+   UI
+========================= */
+
+const openBtn = document.getElementById("openChapter");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("overlayClose");
+
+openBtn.onclick=()=>{
+  overlay.style.display="flex";
+  document.body.style.overflow="hidden";
+};
+
+closeBtn.onclick=()=>{
+  overlay.style.display="none";
+  document.body.style.overflow="auto";
+};
+
+const menu=document.getElementById("chapterMenu");
+const openMenuBtn=document.getElementById("openMenu");
+const closeMenuBtn=document.getElementById("menuClose");
+
+openMenuBtn.onclick=()=>{
+  menu.style.display="flex";
+  document.body.style.overflow="hidden";
+};
+
+closeMenuBtn.onclick=()=>{
+  menu.style.display="none";
+  document.body.style.overflow="auto";
+};
+
+
+
+/* =========================
+   DPI
+========================= */
+
+function setup(c){
+
+  const dpr=window.devicePixelRatio||1;
+  const r=c.getBoundingClientRect();
+
+  c.width=r.width*dpr;
+  c.height=r.height*dpr;
+
+  const ctx=c.getContext("2d");
+
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+
+  return ctx;
+}
+
+
+
+/* =========================
+   LEFT: VOID GLITCH
+========================= */
+
+function startVoid(id){
+
+  const c=document.getElementById(id);
+  if(!c) return;
+
+  const ctx=setup(c);
+
+  const w=c.clientWidth;
+  const h=c.clientHeight;
+
+  let t=0;
+
+
+  function draw(){
+
+    ctx.fillStyle="#000000";
+    ctx.fillRect(0,0,w,h);
+
+
+    /* rare horizontal tear */
+
+    if(Math.random()<0.004){
+
+      const y=Math.random()*h;
+
+      ctx.fillStyle="rgba(255,160,80,0.15)";
+      ctx.fillRect(0,y,w,2);
+    }
+
+
+    /* dead pixels */
+
+    if(Math.random()<0.01){
+
+      const x=Math.random()*w;
+      const y=Math.random()*h;
+
+      ctx.fillStyle="rgba(255,180,120,0.4)";
+      ctx.fillRect(x,y,2,2);
+    }
+
+
+    t++;
+
+    requestAnimationFrame(draw);
+  }
+
+
+  draw();
+}
+
+
+
+/* =========================
+   RIGHT: LAST SIGNAL
+========================= */
+
+function startLastSignal(id){
+
+  const c=document.getElementById(id);
+  if(!c) return;
+
+  const ctx=setup(c);
+
+  const w=c.clientWidth;
+  const h=c.clientHeight;
+
+  let pulse=0;
+
+
+  function draw(){
+
+    ctx.fillStyle="#000000";
+    ctx.fillRect(0,0,w,h);
+
+
+    const cx=w/2;
+    const cy=h/2;
+
+
+    /* random pulse */
+
+    if(Math.random()<0.003){
+
+      pulse=1;
+    }
+
+
+    if(pulse>0){
+
+      const r=60+pulse*180;
+
+
+      const g=
+        ctx.createRadialGradient(
+          cx,cy,10,
+          cx,cy,r
+        );
+
+
+      g.addColorStop(0,
+        `rgba(255,180,100,${pulse})`);
+
+      g.addColorStop(1,
+        "rgba(255,80,20,0)");
+
+
+      ctx.fillStyle=g;
+
+      ctx.beginPath();
+      ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.fill();
+
+
+      pulse*=0.88;
+    }
+
+
+    requestAnimationFrame(draw);
+  }
+
+
+  draw();
+}
+
+
+
+/* =========================
+   START
+========================= */
+
+window.onload=()=>{
+
+  startVoid("visual01");      // LEFT
+  startLastSignal("visual02"); // RIGHT
+
+};
+
+</script>
+
+
+</body>
+</html>
